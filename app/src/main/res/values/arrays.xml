@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Catalog sorting array entries/values -->
+    <string-array name="pref_catalog_sorting_entries">
+        <item>Most Popular</item>
+        <item>Highest-Rated</item>
+    </string-array>
+
+    <string-array name="pref_catalog_sorting_entryValues">
+        <item>popularity</item>
+        <item>rating</item>
+    </string-array>
+
+</resources>

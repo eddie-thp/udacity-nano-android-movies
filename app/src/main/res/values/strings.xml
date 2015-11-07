@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <!-- Menu actions -->
+    <string name="action_settings">Settings</string>
+
+    <!--
+    Sorting preference strings:
+    The sort order can be by most popular, or by highest-rated (see: arrays.xml)
+    -->
+    <string name="pref_catalog_sorting_title">Sorting</string>
+    <string name="pref_catalog_sorting_key" translatable="false">sorting</string>
+    <string name="pref_catalog_sorting_default" translatable="false">popularity</string>
+
+</resources>

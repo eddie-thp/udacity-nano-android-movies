@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The sort order can be by most popular, or by highest-rated -->
+    <ListPreference
+        android:key="@string/pref_catalog_sorting_key"
+        android:title="@string/pref_catalog_sorting_title"
+        android:defaultValue="@string/pref_catalog_sorting_default"
+        android:entries="@array/pref_catalog_sorting_entries"
+        android:entryValues="@array/pref_catalog_sorting_entryValues" />
+
+</PreferenceScreen>
