@@ -7,9 +7,13 @@
         <item>Highest-Rated</item>
     </string-array>
 
+    <!--
+        Sorting values accordingly to MovieDB API documentation
+        (https://www.themoviedb.org/documentation/api/discover)
+    -->
     <string-array name="pref_catalog_sorting_entryValues">
-        <item>popularity</item>
-        <item>rating</item>
+        <item>popularity.desc</item>
+        <item>vote_average.desc</item>
     </string-array>
 
 </resources>

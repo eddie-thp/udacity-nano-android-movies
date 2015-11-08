@@ -16,7 +16,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        all {
+            resValue("string", "movie_db_org_api_key", getProperty("mdb.apiKey"))
+        }
     }
+
 }
 
 dependencies {
@@ -24,4 +29,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
+    compile 'com.squareup.picasso:picasso:2.5.2'
+}
+
+repositories {
+    mavenCentral()
 }
