@@ -7,8 +7,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.GridView;
+
+import io.ethp.movies.widget.MovieImageArrayAdapter;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -17,7 +18,7 @@ public class CatalogActivityFragment extends Fragment {
 
     private static final String LOG_TAG = CatalogActivityFragment.class.getSimpleName();
 
-    private ArrayAdapter<String> mCatalogAdapter;
+    private MovieImageArrayAdapter mCatalogAdapter;
     private FetchMoviesTask mFetchMoviesTask;
 
     public CatalogActivityFragment() {
@@ -28,7 +29,7 @@ public class CatalogActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_catalog, container, false);
 
-        mCatalogAdapter = new ArrayAdapter<String>(getActivity(), R.layout.grid_item_movie, R.id.grid_item_movie_text);
+        mCatalogAdapter = new MovieImageArrayAdapter(getActivity(), R.layout.grid_item_movie, R.id.grid_item_movie_image);
 
         // Setup task
         mFetchMoviesTask = new FetchMoviesTask(mCatalogAdapter);

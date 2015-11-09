@@ -3,7 +3,6 @@ package io.ethp.movies;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +16,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 
+import io.ethp.movies.model.Movie;
+import io.ethp.movies.widget.MovieImageArrayAdapter;
+
 /**
  * Task responsible for fetching a list of movies from "www.themoviedb.org"
  *
@@ -28,18 +30,18 @@ import java.util.Arrays;
  * [0] = apiKey
  * [1] = sorting
  */
-public class FetchMoviesTask  extends AsyncTask<String, Void, String[]> {
+public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
 
     private static final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
-    private ArrayAdapter<String> mAdapter;
+    private MovieImageArrayAdapter mAdapter;
 
-    public FetchMoviesTask(ArrayAdapter<String> adapter) {
+    public FetchMoviesTask(MovieImageArrayAdapter adapter) {
         this.mAdapter = adapter;
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Movie[] doInBackground(String... params) {
 
         // TODO Use parameter if passed or use default for sorting
         // String sorting = (params.length > 0 ? param[0] : getString(R.string.pref_catalog_sorting_default));
@@ -118,26 +120,30 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, String[]> {
             }
         }
 
-        String movies[] = processApiResponse(responseStr);
+        Movie movies[] = processApiResponse(responseStr);
 
         return movies;
     }
 
-    private String[] processApiResponse(String responseStr) {
-        String movies[] = null;
+    private Movie[] processApiResponse(String responseStr) {
+        Movie movies[] = null;
 
         final String DISCOVER_RESULTS = "results";
         final String MOVIE_TITLE = "title";
+        final String POSTER_PATH = "poster_path";
 
         try {
             JSONObject responseJson = new JSONObject(responseStr);
             JSONArray responseResults = responseJson.getJSONArray(DISCOVER_RESULTS);
 
-            movies = new String[responseResults.length()];
+            movies = new Movie[responseResults.length()];
 
             for(int i = 0; i< responseResults.length(); i++) {
                 JSONObject movieJSON = responseResults.getJSONObject(i);
-                movies[i] = movieJSON.getString(MOVIE_TITLE);
+                movies[i] = new Movie();
+                movies[i].setTitle(movieJSON.getString(MOVIE_TITLE));
+                movies[i].setImage(movieJSON.getString(POSTER_PATH));
+
             }
         } catch(JSONException e) {
             Log.e(LOG_TAG, "Failed parsing response json" + responseStr, e);
@@ -147,9 +153,9 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, String[]> {
     }
 
     @Override
-    protected void onPostExecute(String[] strings) {
-        super.onPostExecute(strings);
+    protected void onPostExecute(Movie[] movies) {
+        super.onPostExecute(movies);
 
-        mAdapter.addAll(Arrays.asList(strings));
+        mAdapter.addAll(Arrays.asList(movies));
     }
 }
