@@ -107,6 +107,7 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
 
         } catch(Exception e) {
             Log.e(LOG_TAG, "Failed to fetch movies: " + mDbApiUri, e);
+            return null;
         } finally{
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -156,6 +157,10 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
     protected void onPostExecute(Movie[] movies) {
         super.onPostExecute(movies);
 
-        mAdapter.addAll(Arrays.asList(movies));
+        if(movies != null) {
+            mAdapter.addAll(Arrays.asList(movies));
+        } else {
+            // TODO Log / Toast
+        }
     }
 }

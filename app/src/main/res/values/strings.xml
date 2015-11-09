@@ -4,6 +4,8 @@
     <!-- Menu actions -->
     <string name="action_settings">Settings</string>
 
+    <string name="title_activity_settings">Settings</string>
+
     <!--
     Sorting preference strings:
     The sort order can be by most popular, or by highest-rated (see: arrays.xml)

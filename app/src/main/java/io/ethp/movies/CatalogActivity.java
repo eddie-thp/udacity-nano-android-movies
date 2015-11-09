@@ -1,5 +1,6 @@
 package io.ethp.movies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -32,6 +33,8 @@ public class CatalogActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent launchSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(launchSettingsActivity);
             return true;
         }
 
