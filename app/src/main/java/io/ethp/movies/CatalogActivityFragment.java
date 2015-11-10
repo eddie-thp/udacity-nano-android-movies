@@ -19,7 +19,6 @@ public class CatalogActivityFragment extends Fragment {
     private static final String LOG_TAG = CatalogActivityFragment.class.getSimpleName();
 
     private MovieImageArrayAdapter mCatalogAdapter;
-    private FetchMoviesTask mFetchMoviesTask;
 
     public CatalogActivityFragment() {
     }
@@ -31,21 +30,9 @@ public class CatalogActivityFragment extends Fragment {
 
         mCatalogAdapter = new MovieImageArrayAdapter(getActivity(), R.layout.grid_item_movie, R.id.grid_item_movie_image);
 
-        // Setup task
-        mFetchMoviesTask = new FetchMoviesTask(mCatalogAdapter);
-
         // Setup gridView
         GridView catalogGridView = (GridView) rootView.findViewById(R.id.gridview_catalog);
         catalogGridView.setAdapter(mCatalogAdapter);
-
-        fetchMovies();
-
-        // TODO load images using Picasso
-        // Picasso.with(getActivity()).load().into();
-
-        //FetchMoviesTask task = new FetchMoviesTask()
-
-        // mCatalogAdapter.addAll(Arrays.asList(movies));
 
         return rootView;
     }
@@ -57,6 +44,19 @@ public class CatalogActivityFragment extends Fragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sorting = prefs.getString(getString(R.string.pref_catalog_sorting_key), getString(R.string.pref_catalog_sorting_default));
 
-        mFetchMoviesTask.execute(apiKey, sorting);
+        // Cleaning up the adapter contents
+        // TODO - I'm currently not handling data paging, I guess this will have to change
+        mCatalogAdapter.clear();
+
+        // Create and execute task
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask(mCatalogAdapter);
+        fetchMoviesTask.execute(apiKey, sorting);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        fetchMovies();
     }
 }
