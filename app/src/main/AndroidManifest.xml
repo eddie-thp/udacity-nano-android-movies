@@ -21,6 +21,17 @@
         </activity>
 
         <activity
+            android:name=".MovieDetailsActivity"
+            android:label="@string/title_activity_movie_details"
+            android:parentActivityName=".CatalogActivity">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.ethp.movies.CatalogActivity" />
+        </activity>
+
+
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".CatalogActivity">

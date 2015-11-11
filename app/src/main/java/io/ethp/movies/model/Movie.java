@@ -1,9 +1,11 @@
 package io.ethp.movies.model;
 
+import java.io.Serializable;
+
 /**
  * Class that represents the Movie information retrieved from "themoviedb.org"
  */
-public class Movie {
+public class Movie implements Serializable {
 
     private String title;
 

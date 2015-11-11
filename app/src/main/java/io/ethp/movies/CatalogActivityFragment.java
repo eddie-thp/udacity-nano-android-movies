@@ -1,5 +1,6 @@
 package io.ethp.movies;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -7,8 +8,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
+import io.ethp.movies.model.Movie;
 import io.ethp.movies.widget.MovieImageArrayAdapter;
 
 /**
@@ -31,8 +34,17 @@ public class CatalogActivityFragment extends Fragment {
         mCatalogAdapter = new MovieImageArrayAdapter(getActivity(), R.layout.grid_item_movie, R.id.grid_item_movie_image);
 
         // Setup gridView
-        GridView catalogGridView = (GridView) rootView.findViewById(R.id.gridview_catalog);
+        final GridView catalogGridView = (GridView) rootView.findViewById(R.id.gridview_catalog);
         catalogGridView.setAdapter(mCatalogAdapter);
+        catalogGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Movie clickedMovie = (Movie) catalogGridView.getItemAtPosition(position);
+                Intent launchDetailActivityIntent = new Intent(getActivity(), MovieDetailsActivity.class).putExtra(Intent.EXTRA_TEXT, clickedMovie);
+                startActivity(launchDetailActivityIntent);
+                //Toast.makeText(getActivity(), "Info: " + forecast, Toast.LENGTH_LONG).show();
+            }
+        });
 
         return rootView;
     }
