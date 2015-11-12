@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Arrays;
 
 import io.ethp.movies.model.Movie;
@@ -130,8 +131,6 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
         Movie movies[] = null;
 
         final String DISCOVER_RESULTS = "results";
-        final String MOVIE_TITLE = "title";
-        final String POSTER_PATH = "poster_path";
 
         try {
             JSONObject responseJson = new JSONObject(responseStr);
@@ -140,11 +139,14 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
             movies = new Movie[responseResults.length()];
 
             for(int i = 0; i< responseResults.length(); i++) {
-                JSONObject movieJSON = responseResults.getJSONObject(i);
-                movies[i] = new Movie();
-                movies[i].setTitle(movieJSON.getString(MOVIE_TITLE));
-                movies[i].setImage(movieJSON.getString(POSTER_PATH));
-
+                try {
+                    JSONObject movieJSON = responseResults.getJSONObject(i);
+                    movies[i] = new Movie(movieJSON);
+                } catch(JSONException e) {
+                    Log.e(LOG_TAG, "Failed parsing response json" + responseStr, e);
+                } catch (ParseException e) {
+                    Log.e(LOG_TAG, "Failed parsing response json date" + responseStr, e);
+                }
             }
         } catch(JSONException e) {
             Log.e(LOG_TAG, "Failed parsing response json" + responseStr, e);

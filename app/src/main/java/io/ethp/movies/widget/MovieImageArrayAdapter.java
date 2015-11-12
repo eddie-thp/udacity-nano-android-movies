@@ -1,7 +1,6 @@
 package io.ethp.movies.widget;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,16 +92,7 @@ public class MovieImageArrayAdapter extends ArrayAdapter<Movie> {
         Movie movie = getItem(position);
         Context context = imageView.getContext();
 
-        // E.g. http://image.tmdb.org/t/p/w185//nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme("http");
-        builder.authority("image.tmdb.org");
-        builder.appendPath("t");
-        builder.appendPath("p");
-        builder.appendPath("w185");
-        builder.appendEncodedPath(movie.getImage());
-
-        Picasso.with(context).load(builder.build()).into(imageView);
+        movie.loadImage(imageView);
 
         return view;
     }

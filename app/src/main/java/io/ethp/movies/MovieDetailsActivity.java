@@ -1,19 +1,14 @@
 package io.ethp.movies;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import io.ethp.movies.model.Movie;
@@ -52,7 +47,10 @@ public class MovieDetailsActivity extends ActionBarActivity {
             Intent intent = getActivity().getIntent();
             if(intent!=null && intent.getSerializableExtra(Intent.EXTRA_TEXT) != null) {
                 Movie movie  = (Movie) intent.getSerializableExtra(Intent.EXTRA_TEXT);
-                ((TextView) rootView.findViewById(R.id.textview_movie_name)).setText(movie.getTitle());
+                ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(movie.getTitle());
+                movie.loadImage((ImageView) rootView.findViewById(R.id.imageViewPoster));
+                ((RatingBar) rootView.findViewById(R.id.ratingBarUserRating)).setRating((float) movie.getUserRating() / 2);
+                ((TextView) rootView.findViewById(R.id.textViewOverview)).setText(movie.getOverview());
             }
 
             return rootView;
