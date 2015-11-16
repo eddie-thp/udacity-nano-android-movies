@@ -90,8 +90,6 @@ public class MovieImageArrayAdapter extends ArrayAdapter<Movie> {
         }
 
         Movie movie = getItem(position);
-        Context context = imageView.getContext();
-
         movie.loadImage(imageView);
 
         return view;

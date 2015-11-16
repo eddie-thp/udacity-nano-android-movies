@@ -15,7 +15,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.ethp.movies.model.Movie;
 import io.ethp.movies.widget.MovieImageArrayAdapter;
@@ -139,13 +140,13 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
             movies = new Movie[responseResults.length()];
 
             for(int i = 0; i< responseResults.length(); i++) {
+                JSONObject movieJSON = responseResults.getJSONObject(i);
                 try {
-                    JSONObject movieJSON = responseResults.getJSONObject(i);
                     movies[i] = new Movie(movieJSON);
                 } catch(JSONException e) {
-                    Log.e(LOG_TAG, "Failed parsing response json" + responseStr, e);
+                    Log.e(LOG_TAG, "Failed parsing response json" + movieJSON, e);
                 } catch (ParseException e) {
-                    Log.e(LOG_TAG, "Failed parsing response json date" + responseStr, e);
+                    Log.e(LOG_TAG, "Failed parsing response json date" + movieJSON, e);
                 }
             }
         } catch(JSONException e) {
@@ -160,7 +161,16 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
         super.onPostExecute(movies);
 
         if(movies != null) {
-            mAdapter.addAll(Arrays.asList(movies));
+            // List<Movie> moviesList = Arrays.asList(movies) adds NULL items in the array to the list, to prevent that I had to create the list myself
+            // NULL items may exist if the Movie object wasn't created correctly due to issues in the parsing and/or date formatting
+            List<Movie> moviesList = new ArrayList<Movie>();
+            for(Movie movie : movies) {
+                if(movie != null) {
+                    moviesList.add(movie);
+                }
+            }
+
+            mAdapter.addAll(moviesList);
         } else {
             // TODO Log / Toast
         }
