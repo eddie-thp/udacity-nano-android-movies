@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
+
 import io.ethp.movies.model.Movie;
 
 public class MovieDetailsActivity extends ActionBarActivity {
@@ -33,6 +35,8 @@ public class MovieDetailsActivity extends ActionBarActivity {
      */
     public static class PlaceholderFragment extends Fragment {
 
+        private static final SimpleDateFormat sdf = new SimpleDateFormat("mm/yyyy");
+
         private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
 
         public PlaceholderFragment() {
@@ -49,7 +53,9 @@ public class MovieDetailsActivity extends ActionBarActivity {
                 Movie movie  = (Movie) intent.getSerializableExtra(Intent.EXTRA_TEXT);
                 ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(movie.getTitle());
                 movie.loadImage((ImageView) rootView.findViewById(R.id.imageViewPoster));
+                ((TextView) rootView.findViewById(R.id.textViewReleaseDate)).setText(sdf.format(movie.getRelease()));
                 ((RatingBar) rootView.findViewById(R.id.ratingBarUserRating)).setRating((float) movie.getUserRating() / 2);
+                ((TextView) rootView.findViewById(R.id.textViewRating)).setText("(" + String.valueOf(movie.getUserRating()) + ")");
                 ((TextView) rootView.findViewById(R.id.textViewOverview)).setText(movie.getOverview());
             }
 
