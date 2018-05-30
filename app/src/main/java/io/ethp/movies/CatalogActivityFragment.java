@@ -1,18 +1,18 @@
 package io.ethp.movies;
 
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.GridView;
 
-import io.ethp.movies.model.Movie;
-import io.ethp.movies.widget.MovieImageArrayAdapter;
+import io.ethp.movies.adapters.MovieCatalogAdapter;
+import io.ethp.movies.tasks.FetchMoviesTask;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -21,7 +21,7 @@ public class CatalogActivityFragment extends Fragment {
 
     private static final String LOG_TAG = CatalogActivityFragment.class.getSimpleName();
 
-    private MovieImageArrayAdapter mCatalogAdapter;
+    private MovieCatalogAdapter mCatalogAdapter;
 
     public CatalogActivityFragment() {
     }
@@ -29,22 +29,24 @@ public class CatalogActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_catalog, container, false);
 
-        mCatalogAdapter = new MovieImageArrayAdapter(getActivity(), R.layout.grid_item_movie, R.id.grid_item_movie_image);
+        Context context = getActivity();
 
-        // Setup gridView
-        final GridView catalogGridView = (GridView) rootView.findViewById(R.id.gridview_catalog);
-        catalogGridView.setAdapter(mCatalogAdapter);
-        catalogGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Movie clickedMovie = (Movie) catalogGridView.getItemAtPosition(position);
-                Intent launchDetailActivityIntent = new Intent(getActivity(), MovieDetailsActivity.class).putExtra(Intent.EXTRA_TEXT, clickedMovie);
-                startActivity(launchDetailActivityIntent);
-                //Toast.makeText(getActivity(), "Info: " + forecast, Toast.LENGTH_LONG).show();
-            }
-        });
+        // Setup Recycler View:
+        // 1 - Set the layout manager
+        // 2 - Set that items will have a fixed size
+        // 3 - Set the adapter
+        final RecyclerView catalogRecyclerView = (RecyclerView) rootView.findViewById(R.id.gridview_catalog);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 2);
+        catalogRecyclerView.setLayoutManager(gridLayoutManager);
+
+        catalogRecyclerView.setHasFixedSize(true);
+
+        mCatalogAdapter = new MovieCatalogAdapter();
+        catalogRecyclerView.setAdapter(mCatalogAdapter);
 
         return rootView;
     }

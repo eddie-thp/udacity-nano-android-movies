@@ -14,10 +14,11 @@
         maybe this is considered to be an special case, not sure
      -->
 
-    <GridView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/gridview_catalog"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="2" />
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
 
 </FrameLayout>

@@ -1,4 +1,4 @@
-package io.ethp.movies;
+package io.ethp.movies.tasks;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,8 +18,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.ethp.movies.adapters.MovieCatalogAdapter;
 import io.ethp.movies.model.Movie;
-import io.ethp.movies.widget.MovieImageArrayAdapter;
 
 /**
  * Task responsible for fetching a list of movies from "www.themoviedb.org"
@@ -36,9 +36,9 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
 
     private static final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
-    private MovieImageArrayAdapter mAdapter;
+    private MovieCatalogAdapter mAdapter;
 
-    public FetchMoviesTask(MovieImageArrayAdapter adapter) {
+    public FetchMoviesTask(MovieCatalogAdapter adapter) {
         this.mAdapter = adapter;
     }
 
