@@ -1,7 +1,14 @@
-package io.ethp.movies.tasks;
+package io.ethp.movies.loaders;
 
+import android.app.LoaderManager;
+import android.content.Context;
+import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -18,46 +25,69 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.ethp.movies.adapters.MovieCatalogAdapter;
+import io.ethp.movies.R;
 import io.ethp.movies.model.Movie;
 
-/**
- * Task responsible for fetching a list of movies from "www.themoviedb.org"
- *
- * API documentation can be found in: https://www.themoviedb.org/documentation/api/discover
- *
- * // TODO receive api key externally, or getString property here ? problem = lack of context
- *
- * Parameters:
- * [0] = apiKey
- * [1] = sorting
- */
-public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
+public class MovieCatalogAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
 
-    private static final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
+    private static final String LOG_TAG = MovieCatalogAsyncTaskLoader.class.getSimpleName();
 
-    private MovieCatalogAdapter mAdapter;
+    private static final String REQUEST_METHOD = "GET";
 
-    public FetchMoviesTask(MovieCatalogAdapter adapter) {
-        this.mAdapter = adapter;
+    private static final String PARAM_MDB_API_KEY = "api_key";
+    private static final String PARAM_SORT_BY = "sort_by";
+    private static final String PARAM_PAGE = "page";
+
+    private final String MDB_API_KEY;
+
+    private int mPage;
+
+    private String mSortBy;
+
+    private List<Movie> mMovies;
+
+    public MovieCatalogAsyncTaskLoader(Context context) {
+        this(context, 1);
+    }
+
+    public MovieCatalogAsyncTaskLoader(Context context, int page) {
+        super(context);
+        MDB_API_KEY = getContext().getString(R.string.movie_db_org_api_key);
+        mPage = page;
     }
 
     @Override
-    protected Movie[] doInBackground(String... params) {
+    protected void onStartLoading() {
+        super.onStartLoading();
 
-        // TODO Use parameter if passed or use default for sorting
-        // String sorting = (params.length > 0 ? param[0] : getString(R.string.pref_catalog_sorting_default));
-        String apiKey = params[0];
-        String sorting = params[1];
+        Context context = getContext();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String sortBy = prefs.getString(context.getString(R.string.pref_catalog_sorting_key), context.getString(R.string.pref_catalog_sorting_default));
 
-        // http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=daf267f1cbc202e37a035fc65cef8814
-/*
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sorting = prefs.getString(getString(R.string.pref_catalog_sorting_key), getString(R.string.pref_catalog_sorting_default));
-*/
+        // TODO call fragment/activity startLoading() ==> show loading widget
 
-        final String MDB_API_KEY_PARAM = "api_key";
-        final String SORTING_PARAM = "sort_by";
+        if (mMovies == null || mSortBy != sortBy) {
+            // Force load if sortBy preference has changed
+            mSortBy = sortBy;
+            forceLoad();
+        } else {
+            deliverResult(mMovies);
+        }
+    }
+
+    @Override
+    public void deliverResult(@Nullable List<Movie> data) {
+        // Cache the result before delivering
+        if (mMovies != data) {
+            mMovies = data;
+        }
+
+        super.deliverResult(data);
+    }
+
+    @Nullable
+    @Override
+    public List<Movie> loadInBackground() {
 
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("http");
@@ -65,8 +95,10 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
         builder.appendPath("3");
         builder.appendPath("discover");
         builder.appendPath("movie");
-        builder.appendQueryParameter(MDB_API_KEY_PARAM, apiKey);
-        builder.appendQueryParameter(SORTING_PARAM, sorting);
+        builder.appendQueryParameter(PARAM_MDB_API_KEY, MDB_API_KEY);
+        builder.appendQueryParameter(PARAM_SORT_BY, mSortBy);
+        builder.appendQueryParameter(PARAM_PAGE, Integer.toString(mPage));
+
         Uri mDbApiUri = builder.build();
 
         // These two need to be declared outside the try/catch
@@ -81,7 +113,7 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) mDbApiUrl.openConnection();
-            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestMethod(REQUEST_METHOD);
             urlConnection.connect();
 
             // Read the input stream into a String
@@ -125,7 +157,23 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
 
         Movie movies[] = processApiResponse(responseStr);
 
-        return movies;
+        if(movies != null) {
+            // List<Movie> moviesList = Arrays.asList(movies) adds NULL items in the array to the list, to prevent that I had to create the list myself
+            // NULL items may exist if the Movie object wasn't created correctly due to issues in the parsing and/or date formatting
+            List<Movie> moviesList = new ArrayList<Movie>();
+            for(Movie movie : movies) {
+                if(movie != null) {
+                    moviesList.add(movie);
+                }
+            }
+
+            return moviesList;
+
+        } else {
+            // TODO Log / Toast
+        }
+
+        return null;
     }
 
     private Movie[] processApiResponse(String responseStr) {
@@ -156,23 +204,4 @@ public class FetchMoviesTask  extends AsyncTask<String, Void, Movie[]> {
         return movies;
     }
 
-    @Override
-    protected void onPostExecute(Movie[] movies) {
-        super.onPostExecute(movies);
-
-        if(movies != null) {
-            // List<Movie> moviesList = Arrays.asList(movies) adds NULL items in the array to the list, to prevent that I had to create the list myself
-            // NULL items may exist if the Movie object wasn't created correctly due to issues in the parsing and/or date formatting
-            List<Movie> moviesList = new ArrayList<Movie>();
-            for(Movie movie : movies) {
-                if(movie != null) {
-                    moviesList.add(movie);
-                }
-            }
-
-            mAdapter.addAll(moviesList);
-        } else {
-            // TODO Log / Toast
-        }
-    }
 }
