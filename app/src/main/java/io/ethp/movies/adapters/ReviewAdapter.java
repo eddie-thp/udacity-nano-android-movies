@@ -57,8 +57,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     public void addAll(List<Review> reviews) {
         final int count = getItemCount();
         mReviews.addAll(reviews);
-        //notifyItemRangeInserted(count, reviews.size());
         notifyDataSetChanged();
+        // Try understanding why notifyItemRangeInserted is not working
+        // notifyItemRangeInserted(count, reviews.size());
     }
 
     public void clear() {
