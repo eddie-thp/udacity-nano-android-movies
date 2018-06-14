@@ -1,6 +1,9 @@
 package io.ethp.movies.adapters;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,14 +23,33 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     private List<Video> mVideos = new ArrayList<>();
 
-    class VideoViewHolder extends RecyclerView.ViewHolder {
+    class VideoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        private Video mVideo;
         private final TextView mNameTextView;
 
         public VideoViewHolder(final View itemView) {
             super(itemView);
 
             mNameTextView = (TextView) itemView.findViewById(R.id.nameTextView);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            Context context = view.getContext();
+
+            // As described in https://stackoverflow.com/questions/574195/android-youtube-app-play-video-intent
+
+            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + mVideo.getKey()));
+            try {
+                context.startActivity(appIntent);
+            } catch (ActivityNotFoundException ex) {
+                Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://www.youtube.com/watch?v=" + mVideo.getKey()));
+                context.startActivity(webIntent);
+            }
         }
     }
 
@@ -42,6 +64,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     @Override
     public void onBindViewHolder(@NonNull VideoViewHolder holder, int position) {
         final Video video = mVideos.get(position);
+        holder.mVideo = video;
         holder.mNameTextView.setText(video.getName());
     }
 
