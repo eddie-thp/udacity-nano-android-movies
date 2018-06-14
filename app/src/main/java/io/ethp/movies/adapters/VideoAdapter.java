@@ -53,7 +53,9 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public void addAll(List<Video> videos) {
         final int count = getItemCount();
         mVideos.addAll(videos);
-        notifyItemRangeInserted(count, videos.size());
+        notifyDataSetChanged();
+        // Try understanding why notifyItemRangeInserted is not working
+        // notifyItemRangeInserted(count, videos.size());
     }
 
     public void clear() {

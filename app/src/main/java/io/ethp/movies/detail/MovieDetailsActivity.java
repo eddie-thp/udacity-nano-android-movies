@@ -1,4 +1,4 @@
-package io.ethp.movies;
+package io.ethp.movies.detail;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,12 +20,22 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import io.ethp.movies.R;
 import io.ethp.movies.adapters.ReviewAdapter;
+import io.ethp.movies.adapters.VideoAdapter;
+import io.ethp.movies.detail.ReviewLoaderCallbacks;
+import io.ethp.movies.detail.VideoLoaderCallbacks;
 import io.ethp.movies.loaders.MovieReviewsAsyncTaskLoader;
+import io.ethp.movies.loaders.MovieVideosAsyncTaskLoader;
 import io.ethp.movies.model.Movie;
 import io.ethp.movies.model.Review;
+import io.ethp.movies.model.Video;
 
 public class MovieDetailsActivity extends AppCompatActivity{
+
+    protected static final int LOADER_VIDEO_ID = 10;
+
+    protected static final int LOADER_REVIEW_ID = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +53,18 @@ public class MovieDetailsActivity extends AppCompatActivity{
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Review>> {
+    public static class PlaceholderFragment extends Fragment {
 
         private static final SimpleDateFormat sdf = new SimpleDateFormat("mm/yyyy");
 
         private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
 
-        private ReviewAdapter mReviewsAdapter;
+        // Movie (trailers) recycler view related attributes
+        private VideoAdapter mVideosAdapter;
+        private RecyclerView mVideosRecyclerView;
 
+        // Review recycler view related attributes
+        private ReviewAdapter mReviewsAdapter;
         private RecyclerView mReviewsRecyclerView;
 
         public PlaceholderFragment() {
@@ -77,10 +91,25 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 // 1 - Set the layout manager
                 // 2 - Set that items will have a fixed size
                 // 3 - Set the adapter
+                mVideosRecyclerView = (RecyclerView) rootView.findViewById(R.id.trailersRecyclerView);
+
+                RecyclerView.LayoutManager videosLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                mVideosRecyclerView.setLayoutManager(videosLayoutManager);
+
+                mVideosRecyclerView.setHasFixedSize(true);
+
+                mVideosAdapter = new VideoAdapter();
+                mVideosRecyclerView.setAdapter(mVideosAdapter);
+
+
+                // Setup Recycler View:
+                // 1 - Set the layout manager
+                // 2 - Set that items will have a fixed size
+                // 3 - Set the adapter
                 mReviewsRecyclerView = (RecyclerView) rootView.findViewById(R.id.reviewsRecyclerView);
 
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-                mReviewsRecyclerView.setLayoutManager(linearLayoutManager);
+                RecyclerView.LayoutManager reviewsLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+                mReviewsRecyclerView.setLayoutManager(reviewsLayoutManager);
 
                 mReviewsRecyclerView.setHasFixedSize(true);
 
@@ -91,54 +120,22 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 // Explains that getLoaderManager() from v4.app.Fragment should be the same as calling getSupportLoaderManager() from v4.app.FragmentAcivity
                 LoaderManager loaderManager = getLoaderManager();
 
-                Loader<List<Review>> reviewsLoader = loaderManager.getLoader(LOADER_REVIEW_ID);
+                Bundle movieBundle = new Bundle();
+                movieBundle.putLong("MOVIE_ID", movie.getId());
 
-                // TODO ASK: Why would I use the bundle, if the loader callbacks are implemented in this class ???
-                Bundle loadReviewsCatalogBundle = new Bundle();
-                loadReviewsCatalogBundle.putLong("MOVIE_ID", movie.getId());
-                if (reviewsLoader == null) {
-                    loaderManager.initLoader(LOADER_REVIEW_ID, loadReviewsCatalogBundle, this);
+                Loader<List<Video>> videosLoader = loaderManager.getLoader(LOADER_VIDEO_ID);
+                if (videosLoader == null) {
+                    loaderManager.initLoader(LOADER_VIDEO_ID, movieBundle, new VideoLoaderCallbacks(getContext(), mVideosAdapter));
                 }
 
-
+                Loader<List<Review>> reviewsLoader = loaderManager.getLoader(LOADER_REVIEW_ID);
+                if (reviewsLoader == null) {
+                    loaderManager.initLoader(LOADER_REVIEW_ID, movieBundle, new ReviewLoaderCallbacks(getContext(), mReviewsAdapter));
+                }
 
             }
 
             return rootView;
-        }
-
-        /// REVIEW LOADER CALLBACK
-
-        private static final int LOADER_REVIEW_ID = 101;
-
-
-        @NonNull
-        @Override
-        public Loader<List<Review>> onCreateLoader(int id, @Nullable Bundle args) {
-            switch (id) {
-
-                case LOADER_REVIEW_ID:
-                    final long movieId = args.getLong("MOVIE_ID");
-                    return new MovieReviewsAsyncTaskLoader(getContext(), movieId);
-                default:
-                    throw new RuntimeException("Loader Not Implemented: " + id);
-            }
-        }
-
-        @Override
-        public void onLoadFinished(@NonNull Loader<List<Review>> loader, List<Review> data) {
-            if(data != null) {
-                // Cleaning up the adapter contents
-                // TODO - I'm currently not handling data paging, I guess this will have to change
-                mReviewsAdapter.clear();
-                mReviewsAdapter.addAll(data);
-            } else {
-                // TODO Log / Toast
-            }        }
-
-        @Override
-        public void onLoaderReset(@NonNull Loader<List<Review>> loader) {
-
         }
 
     }
