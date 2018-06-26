@@ -18,4 +18,8 @@
     <string name="pref_catalog_sorting_key" translatable="false">sorting</string>
     <string name="pref_catalog_sorting_default" translatable="false">popularity.desc</string>
 
+    <!-- Detail strings -->
+    <string name="title_trailers">Trailers</string>
+    <string name="title_reviews">Reviews</string>
+
 </resources>
