@@ -69,6 +69,9 @@ public class CatalogActivityFragment extends Fragment implements LoaderManager.L
         Bundle loadMovieCatalogBundle = new Bundle();
         if (movieCatalogLoader == null) {
             loaderManager.initLoader(LOADER_MOVIE_CATALOG_ID, loadMovieCatalogBundle, this);
+        } else {
+            // TODO Why can't I call - movieCatalogLoader.startLoading(); // Although the loader exists it seems to have lost the callback
+            loaderManager.restartLoader(LOADER_MOVIE_CATALOG_ID, loadMovieCatalogBundle, this);
         }
 
         return rootView;

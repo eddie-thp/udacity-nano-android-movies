@@ -59,13 +59,17 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
 
+        private Long mMovieId;
+
         // Movie (trailers) recycler view related attributes
         private VideoAdapter mVideosAdapter;
         private RecyclerView mVideosRecyclerView;
+        private VideoLoaderCallbacks mVideosLoaderCallback;
 
         // Review recycler view related attributes
         private ReviewAdapter mReviewsAdapter;
         private RecyclerView mReviewsRecyclerView;
+        private ReviewLoaderCallbacks mReviewsLoaderCallback;
 
         public PlaceholderFragment() {
         }
@@ -120,17 +124,27 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 // Explains that getLoaderManager() from v4.app.Fragment should be the same as calling getSupportLoaderManager() from v4.app.FragmentAcivity
                 LoaderManager loaderManager = getLoaderManager();
 
+                mMovieId = movie.getId();
+
                 Bundle movieBundle = new Bundle();
-                movieBundle.putLong("MOVIE_ID", movie.getId());
+                movieBundle.putLong("MOVIE_ID", mMovieId);
 
                 Loader<List<Video>> videosLoader = loaderManager.getLoader(LOADER_VIDEO_ID);
+                mVideosLoaderCallback = new VideoLoaderCallbacks(getContext(), mVideosAdapter);
                 if (videosLoader == null) {
-                    loaderManager.initLoader(LOADER_VIDEO_ID, movieBundle, new VideoLoaderCallbacks(getContext(), mVideosAdapter));
+                    loaderManager.initLoader(LOADER_VIDEO_ID, movieBundle, mVideosLoaderCallback);
+                } else {
+                    // TODO Why can't I call - videosLoader.startLoading(); // Although the loader exists it seems to have lost the callback
+                    loaderManager.restartLoader(LOADER_VIDEO_ID, movieBundle, mVideosLoaderCallback);
                 }
 
                 Loader<List<Review>> reviewsLoader = loaderManager.getLoader(LOADER_REVIEW_ID);
+                mReviewsLoaderCallback = new ReviewLoaderCallbacks(getContext(), mReviewsAdapter);
                 if (reviewsLoader == null) {
-                    loaderManager.initLoader(LOADER_REVIEW_ID, movieBundle, new ReviewLoaderCallbacks(getContext(), mReviewsAdapter));
+                    loaderManager.initLoader(LOADER_REVIEW_ID, movieBundle, mReviewsLoaderCallback);
+                } else {
+                    // TODO Why can't I call - reviewsLoader.startLoading(); // Although the loader exists it seems to have lost the callback
+                    loaderManager.restartLoader(LOADER_REVIEW_ID, movieBundle, mReviewsLoaderCallback);
                 }
 
             }
@@ -139,6 +153,4 @@ public class MovieDetailsActivity extends AppCompatActivity{
         }
 
     }
-
-
 }
