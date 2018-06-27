@@ -1,6 +1,9 @@
 package io.ethp.movies.model;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.widget.ImageView;
 
@@ -13,6 +16,9 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import io.ethp.movies.data.MovieDatabaseContract.MovieEntry;
+
 
 /**
  * Class that represents the Movie information retrieved from "themoviedb.org"
@@ -105,5 +111,30 @@ public class Movie implements Serializable {
         builder.appendEncodedPath(this.getPosterImagePath());
 
         Picasso.with(context).load(builder.build()).into(imageView);
+    }
+
+    public boolean isFavorite(SQLiteDatabase movieDatabase) {
+        String whereArgs[] = { Long.toString(getId()) };
+        Cursor cursor = movieDatabase.query(MovieEntry.TABLE_NAME,  null,MovieEntry._ID + " = ?", whereArgs, null, null, null);
+        boolean favorite = (cursor.getCount() == 1);
+        cursor.close();
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite, SQLiteDatabase movieDatabase) {
+        if (favorite) {
+            ContentValues cv = new ContentValues();
+            cv.put(MovieEntry._ID, getId());
+            cv.put(MovieEntry.COLUMN_TITLE, getTitle());
+            cv.put(MovieEntry.COLUMN_OVERVIEW, getOverview());
+            cv.put(MovieEntry.COLUMN_RELEASE, getRelease().getTime());
+            cv.put(MovieEntry.COLUMN_POSTER_IMAGE_PATH, getPosterImagePath());
+            cv.put(MovieEntry.COLUMN_USER_RATING, getUserRating());
+
+            movieDatabase.insert(MovieEntry.TABLE_NAME, null, cv);
+        } else {
+            String[] deleteArgs = { Long.toString(getId()) };
+            movieDatabase.delete(MovieEntry.TABLE_NAME, MovieEntry._ID + " = ?", deleteArgs);
+        }
     }
 }

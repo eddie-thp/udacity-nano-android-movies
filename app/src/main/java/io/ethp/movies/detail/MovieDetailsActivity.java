@@ -1,12 +1,17 @@
 package io.ethp.movies.detail;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +28,8 @@ import java.util.List;
 import io.ethp.movies.R;
 import io.ethp.movies.adapters.ReviewAdapter;
 import io.ethp.movies.adapters.VideoAdapter;
+import io.ethp.movies.data.MovieDatabaseContract;
+import io.ethp.movies.data.MovieDbHelper;
 import io.ethp.movies.detail.ReviewLoaderCallbacks;
 import io.ethp.movies.detail.VideoLoaderCallbacks;
 import io.ethp.movies.loaders.MovieReviewsAsyncTaskLoader;
@@ -59,6 +66,8 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
 
+        private SQLiteDatabase mMovieDatabase;
+
         private Long mMovieId;
 
         // Movie (trailers) recycler view related attributes
@@ -78,11 +87,19 @@ public class MovieDetailsActivity extends AppCompatActivity{
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
+            // Create a DB helper (this will create the DB when executed for the first time)
+            // Get a writable database, as we will be adding favorite movies
+            MovieDbHelper dbHelper = new MovieDbHelper(getContext());
+            mMovieDatabase = dbHelper.getWritableDatabase();
+
             View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
             Intent intent = getActivity().getIntent();
             if(intent!=null && intent.getSerializableExtra(Intent.EXTRA_TEXT) != null) {
+
                 Movie movie  = (Movie) intent.getSerializableExtra(Intent.EXTRA_TEXT);
+                mMovieId = movie.getId();
+
                 ((TextView) rootView.findViewById(R.id.textViewTitle)).setText(movie.getTitle());
                 movie.loadImage((ImageView) rootView.findViewById(R.id.imageViewPoster));
                 ((TextView) rootView.findViewById(R.id.textViewReleaseDate)).setText(sdf.format(movie.getRelease()));
@@ -90,6 +107,9 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 ((TextView) rootView.findViewById(R.id.textViewRating)).setText("(" + String.valueOf(movie.getUserRating()) + ")");
                 ((TextView) rootView.findViewById(R.id.textViewOverview)).setText(movie.getOverview());
 
+                // Update Favorite ImageView tint as described in: https://stackoverflow.com/questions/20121938/how-to-set-tint-for-an-image-view-programmatically-in-android/45571812#45571812
+                ImageView favoriteImageView = rootView.findViewById(R.id.favoriteImageView);
+                configureFavoriteImageView(favoriteImageView, movie);
 
                 // Setup Recycler View:
                 // 1 - Set the layout manager
@@ -124,8 +144,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
                 // Explains that getLoaderManager() from v4.app.Fragment should be the same as calling getSupportLoaderManager() from v4.app.FragmentAcivity
                 LoaderManager loaderManager = getLoaderManager();
 
-                mMovieId = movie.getId();
-
                 Bundle movieBundle = new Bundle();
                 movieBundle.putLong("MOVIE_ID", mMovieId);
 
@@ -152,5 +170,26 @@ public class MovieDetailsActivity extends AppCompatActivity{
             return rootView;
         }
 
+        private void configureFavoriteImageView(final ImageView favoriteImageView, final Movie movie) {
+            final boolean isFavorite = movie.isFavorite(mMovieDatabase);
+
+            if (isFavorite) {
+                int colorAccent = ContextCompat.getColor(getContext(), R.color.colorAccent);
+                ImageViewCompat.setImageTintList(favoriteImageView, ColorStateList.valueOf(colorAccent));
+                favoriteImageView.setImageResource(R.drawable.ic_star_black_24dp);
+            } else {
+                int colorAccent = ContextCompat.getColor(getContext(), android.R.color.darker_gray);
+                ImageViewCompat.setImageTintList(favoriteImageView, ColorStateList.valueOf(colorAccent));
+                favoriteImageView.setImageResource(R.drawable.ic_star_border_black_24dp);
+            }
+
+            favoriteImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    movie.setFavorite(!isFavorite, mMovieDatabase);
+                    configureFavoriteImageView(favoriteImageView, movie);
+                }
+            });
+        }
     }
 }
