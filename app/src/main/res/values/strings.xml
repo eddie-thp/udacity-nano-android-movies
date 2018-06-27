@@ -17,6 +17,7 @@
     <string name="pref_catalog_sorting_title">Sorting</string>
     <string name="pref_catalog_sorting_key" translatable="false">sorting</string>
     <string name="pref_catalog_sorting_default" translatable="false">popularity.desc</string>
+    <string name="pref_favorite" translatable="false">favorite.desc</string>
 
     <!-- Detail strings -->
     <string name="title_trailers">Trailers</string>

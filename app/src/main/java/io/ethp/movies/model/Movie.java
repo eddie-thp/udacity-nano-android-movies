@@ -50,6 +50,15 @@ public class Movie implements Serializable {
         this.userRating = movieJson.getDouble(JSON_USER_RATING);
     }
 
+    public Movie(Cursor cursor) {
+        this.id = cursor.getLong(cursor.getColumnIndex(MovieEntry._ID));
+        this.title = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_TITLE));
+        this.overview = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
+        this.release = new Date(cursor.getLong(cursor.getColumnIndex(MovieEntry.COLUMN_RELEASE)));
+        this.posterImagePath = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_POSTER_IMAGE_PATH));
+        this.userRating = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_USER_RATING));
+    }
+
     public long getId() {
         return id;
     }

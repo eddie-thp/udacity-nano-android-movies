@@ -5,6 +5,7 @@
     <string-array name="pref_catalog_sorting_entries">
         <item>Most Popular</item>
         <item>Highest-Rated</item>
+        <item>Favorites</item>
     </string-array>
 
     <!--
@@ -14,6 +15,7 @@
     <string-array name="pref_catalog_sorting_entryValues">
         <item>popularity.desc</item>
         <item>vote_average.desc</item>
+        <item>favorite.desc</item>
     </string-array>
 
 </resources>

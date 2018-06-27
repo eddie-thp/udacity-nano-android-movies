@@ -1,7 +1,11 @@
 package io.ethp.movies;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,7 +19,10 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import io.ethp.movies.adapters.MovieCatalogAdapter;
+import io.ethp.movies.adapters.catalog.FavoriteMovieCatalogAdapter;
+import io.ethp.movies.adapters.catalog.MovieCatalogAdapter;
+import io.ethp.movies.data.MovieDatabaseContract.MovieEntry;
+import io.ethp.movies.data.MovieDbHelper;
 import io.ethp.movies.loaders.MovieCatalogAsyncTaskLoader;
 import io.ethp.movies.model.Movie;
 
@@ -25,6 +32,8 @@ import io.ethp.movies.model.Movie;
 public class CatalogActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Movie>> {
 
     private static final String LOG_TAG = CatalogActivityFragment.class.getSimpleName();
+
+    private FavoriteMovieCatalogAdapter mFavoriteCatalogAdapter;
 
     private MovieCatalogAdapter mCatalogAdapter;
 
@@ -56,7 +65,23 @@ public class CatalogActivityFragment extends Fragment implements LoaderManager.L
 
         mCatalogRecyclerView.setHasFixedSize(true);
 
-        mCatalogAdapter = new MovieCatalogAdapter();
+        // Set the appropriate adapter, accordingly to the preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String sortBy = prefs.getString(context.getString(R.string.pref_catalog_sorting_key), context.getString(R.string.pref_catalog_sorting_default));
+        if (sortBy.equals(context.getString(R.string.pref_favorite))) {
+            configureFavoriteAdapter(context);
+        } else {
+            configureWebServiceAdapter();
+        }
+
+        return rootView;
+    }
+
+    private void configureWebServiceAdapter() {
+        if (mCatalogAdapter == null) {
+            mCatalogAdapter = new MovieCatalogAdapter();
+        }
+
         mCatalogRecyclerView.setAdapter(mCatalogAdapter);
 
         // See: https://stackoverflow.com/questions/31088404/difference-between-getloadermanger-and-getactivity-getsupportloadermanager
@@ -73,8 +98,42 @@ public class CatalogActivityFragment extends Fragment implements LoaderManager.L
             // TODO Why can't I call - movieCatalogLoader.startLoading(); // Although the loader exists it seems to have lost the callback
             loaderManager.restartLoader(LOADER_MOVIE_CATALOG_ID, loadMovieCatalogBundle, this);
         }
+    }
 
-        return rootView;
+    private void configureFavoriteAdapter(Context context) {
+        MovieDbHelper dbHelper = new MovieDbHelper(context);
+        SQLiteDatabase movieDatabase = dbHelper.getReadableDatabase();
+        Cursor cursor = movieDatabase.query(
+                MovieEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                MovieEntry._ID);
+
+        if (mFavoriteCatalogAdapter == null) {
+            mFavoriteCatalogAdapter = new FavoriteMovieCatalogAdapter(context, cursor);
+        } else {
+            mFavoriteCatalogAdapter.swapCursor(cursor);
+        }
+        mCatalogRecyclerView.setAdapter(mFavoriteCatalogAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Context context = getActivity();
+
+        // Set the appropriate adapter, accordingly to the preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String sortBy = prefs.getString(context.getString(R.string.pref_catalog_sorting_key), context.getString(R.string.pref_catalog_sorting_default));
+        if (sortBy.equals(context.getString(R.string.pref_favorite))) {
+            configureFavoriteAdapter(context);
+        } else {
+            configureWebServiceAdapter();
+        }
     }
 
     //// LOADER MANAGER CALLBACKS
