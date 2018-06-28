@@ -1,5 +1,6 @@
 package io.ethp.movies.model;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -130,7 +131,7 @@ public class Movie implements Serializable {
         return favorite;
     }
 
-    public void setFavorite(boolean favorite, SQLiteDatabase movieDatabase) {
+    public void setFavorite(boolean favorite, ContentResolver contentResolver) {
         if (favorite) {
             ContentValues cv = new ContentValues();
             cv.put(MovieEntry._ID, getId());
@@ -140,10 +141,12 @@ public class Movie implements Serializable {
             cv.put(MovieEntry.COLUMN_POSTER_IMAGE_PATH, getPosterImagePath());
             cv.put(MovieEntry.COLUMN_USER_RATING, getUserRating());
 
-            movieDatabase.insert(MovieEntry.TABLE_NAME, null, cv);
+            // Insert values using content provider
+            Uri uri = contentResolver.insert(MovieEntry.CONTENT_URI, cv);
         } else {
-            String[] deleteArgs = { Long.toString(getId()) };
-            movieDatabase.delete(MovieEntry.TABLE_NAME, MovieEntry._ID + " = ?", deleteArgs);
+            // Build MOVIE_WITH_ID URI and delete using content provider
+            Uri movieIdUri = MovieEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(getId())).build();
+            int deleted =  contentResolver.delete(movieIdUri, null, null);
         }
     }
 }

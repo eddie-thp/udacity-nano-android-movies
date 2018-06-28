@@ -1,5 +1,6 @@
 package io.ethp.movies.detail;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -186,7 +187,8 @@ public class MovieDetailsActivity extends AppCompatActivity{
             favoriteImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    movie.setFavorite(!isFavorite, mMovieDatabase);
+                    ContentResolver contentResolver = getActivity().getContentResolver();
+                    movie.setFavorite(!isFavorite, contentResolver);
                     configureFavoriteImageView(favoriteImageView, movie);
                 }
             });

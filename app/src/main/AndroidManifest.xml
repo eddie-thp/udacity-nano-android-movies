@@ -41,6 +41,13 @@
                 android:value="io.ethp.movies.CatalogActivity" />
         </activity>
 
+        <!-- Content Providers -->
+        <provider
+            android:name=".data.FavoriteMoviesContentProvider"
+            android:authorities="io.ethp.movies"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>
