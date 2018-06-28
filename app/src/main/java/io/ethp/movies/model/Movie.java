@@ -123,9 +123,13 @@ public class Movie implements Serializable {
         Picasso.with(context).load(builder.build()).into(imageView);
     }
 
-    public boolean isFavorite(SQLiteDatabase movieDatabase) {
-        String whereArgs[] = { Long.toString(getId()) };
-        Cursor cursor = movieDatabase.query(MovieEntry.TABLE_NAME,  null,MovieEntry._ID + " = ?", whereArgs, null, null, null);
+    public boolean isFavorite(ContentResolver contentResolver) {
+        String selection = MovieEntry._ID + " = ?";
+        String selectionArgs[] = { Long.toString(getId()) };
+
+        // Cursor cursor = movieDatabase.query(MovieEntry.TABLE_NAME,  null,, whereArgs, null, null, null);
+        Cursor cursor = contentResolver.query(MovieEntry.CONTENT_URI, null, selection, selectionArgs, null);
+
         boolean favorite = (cursor.getCount() == 1);
         cursor.close();
         return favorite;

@@ -3,7 +3,6 @@ package io.ethp.movies;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -22,7 +21,6 @@ import java.util.List;
 import io.ethp.movies.adapters.catalog.FavoriteMovieCatalogAdapter;
 import io.ethp.movies.adapters.catalog.MovieCatalogAdapter;
 import io.ethp.movies.data.MovieDatabaseContract.MovieEntry;
-import io.ethp.movies.data.MovieDbHelper;
 import io.ethp.movies.loaders.MovieCatalogAsyncTaskLoader;
 import io.ethp.movies.model.Movie;
 
@@ -101,16 +99,8 @@ public class CatalogActivityFragment extends Fragment implements LoaderManager.L
     }
 
     private void configureFavoriteAdapter(Context context) {
-        MovieDbHelper dbHelper = new MovieDbHelper(context);
-        SQLiteDatabase movieDatabase = dbHelper.getReadableDatabase();
-        Cursor cursor = movieDatabase.query(
-                MovieEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                MovieEntry._ID);
+        Cursor cursor = getContext().getContentResolver().query(MovieEntry.CONTENT_URI,
+        null, null, null, MovieEntry._ID);
 
         if (mFavoriteCatalogAdapter == null) {
             mFavoriteCatalogAdapter = new FavoriteMovieCatalogAdapter(context, cursor);

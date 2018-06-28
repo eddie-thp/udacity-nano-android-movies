@@ -3,11 +3,7 @@ package io.ethp.movies.detail;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -29,12 +25,7 @@ import java.util.List;
 import io.ethp.movies.R;
 import io.ethp.movies.adapters.ReviewAdapter;
 import io.ethp.movies.adapters.VideoAdapter;
-import io.ethp.movies.data.MovieDatabaseContract;
 import io.ethp.movies.data.MovieDbHelper;
-import io.ethp.movies.detail.ReviewLoaderCallbacks;
-import io.ethp.movies.detail.VideoLoaderCallbacks;
-import io.ethp.movies.loaders.MovieReviewsAsyncTaskLoader;
-import io.ethp.movies.loaders.MovieVideosAsyncTaskLoader;
 import io.ethp.movies.model.Movie;
 import io.ethp.movies.model.Review;
 import io.ethp.movies.model.Video;
@@ -67,8 +58,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
         private static final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
 
-        private SQLiteDatabase mMovieDatabase;
-
         private Long mMovieId;
 
         // Movie (trailers) recycler view related attributes
@@ -87,11 +76,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
-            // Create a DB helper (this will create the DB when executed for the first time)
-            // Get a writable database, as we will be adding favorite movies
-            MovieDbHelper dbHelper = new MovieDbHelper(getContext());
-            mMovieDatabase = dbHelper.getWritableDatabase();
 
             View rootView = inflater.inflate(R.layout.fragment_movie_details, container, false);
 
@@ -172,7 +156,9 @@ public class MovieDetailsActivity extends AppCompatActivity{
         }
 
         private void configureFavoriteImageView(final ImageView favoriteImageView, final Movie movie) {
-            final boolean isFavorite = movie.isFavorite(mMovieDatabase);
+            final ContentResolver contentResolver = getActivity().getContentResolver();
+
+            final boolean isFavorite = movie.isFavorite(contentResolver);
 
             if (isFavorite) {
                 int colorAccent = ContextCompat.getColor(getContext(), R.color.colorAccent);
@@ -187,7 +173,6 @@ public class MovieDetailsActivity extends AppCompatActivity{
             favoriteImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ContentResolver contentResolver = getActivity().getContentResolver();
                     movie.setFavorite(!isFavorite, contentResolver);
                     configureFavoriteImageView(favoriteImageView, movie);
                 }
