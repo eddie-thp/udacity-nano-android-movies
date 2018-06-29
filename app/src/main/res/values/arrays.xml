@@ -13,9 +13,9 @@
         (https://www.themoviedb.org/documentation/api/discover)
     -->
     <string-array name="pref_catalog_sorting_entryValues">
-        <item>popularity.desc</item>
-        <item>vote_average.desc</item>
-        <item>favorite.desc</item>
+        <item>popular</item>
+        <item>top_rated</item>
+        <item>favorite</item>
     </string-array>
 
 </resources>

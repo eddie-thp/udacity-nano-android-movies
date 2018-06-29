@@ -35,7 +35,6 @@ public class MovieCatalogAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
     private static final String REQUEST_METHOD = "GET";
 
     private static final String PARAM_MDB_API_KEY = "api_key";
-    private static final String PARAM_SORT_BY = "sort_by";
     private static final String PARAM_PAGE = "page";
 
     private final String MDB_API_KEY;
@@ -93,10 +92,9 @@ public class MovieCatalogAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
         builder.scheme("http");
         builder.authority("api.themoviedb.org");
         builder.appendPath("3");
-        builder.appendPath("discover");
         builder.appendPath("movie");
+        builder.appendPath(mSortBy);
         builder.appendQueryParameter(PARAM_MDB_API_KEY, MDB_API_KEY);
-        builder.appendQueryParameter(PARAM_SORT_BY, mSortBy);
         builder.appendQueryParameter(PARAM_PAGE, Integer.toString(mPage));
 
         Uri mDbApiUri = builder.build();
