@@ -119,7 +119,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         super.onSaveInstanceState(outState);
 
         // Saving RecyclerView state accordingly to: https://stackoverflow.com/questions/28236390/recyclerview-store-restore-state-between-activities
-        outState.putParcelable(STATE_CATALOG_LAYOUT_MANAGER, mCatalogLayoutManager.onSaveInstanceState());
+        // NOTE: During testing and debugging, I've noticed that the state wasn't being restored, this other thread clarified the issue: https://stackoverflow.com/questions/5574462/why-onrestoreinstancestate-never-gets-called
+        mCatalogSavedState = mCatalogLayoutManager.onSaveInstanceState();
+        outState.putParcelable(STATE_CATALOG_LAYOUT_MANAGER, mCatalogSavedState);
     }
 
     @Override
