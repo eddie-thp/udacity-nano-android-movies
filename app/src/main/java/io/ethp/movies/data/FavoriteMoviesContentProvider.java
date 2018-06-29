@@ -57,9 +57,8 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         Cursor retCursor;
 
-        // Query for the tasks directory and write a default case
+        // Query movies accordingly to the specified Uri
         switch (match) {
-            // Query for the tasks directory
             case MOVIES:
                 retCursor = db.query(MovieEntry.TABLE_NAME,
                         projection,
@@ -68,6 +67,15 @@ public class FavoriteMoviesContentProvider extends ContentProvider {
                         null,
                         null,
                         sortOrder);
+                break;
+            case MOVIES_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                retCursor = db.query(MovieEntry.TABLE_NAME,
+                        null,
+                        "_id=?", new String[]{id},
+                        null,
+                        null,
+                        null);
                 break;
             // Default exception
             default:
